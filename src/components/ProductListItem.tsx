@@ -1,15 +1,27 @@
-import { Image, StyleSheet } from 'react-native';
+import { Image, StyleSheet, Text, Pressable  } from "react-native";
 
-import { Text, View} from '@/src/components/Themed';
-import Colors from '@/src/constants/Colors';
+import Colors from "@/src/constants/Colors";
+import { Link } from "expo-router";
+import { Product } from "../types";
 
-const ProductListItem = ({ product }) => {
+export const defaultPizzaImage =
+  "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/food/default.png";
+
+type ProductListItemProps = {
+  product: Product;
+};
+const ProductListItem = ({ product }: ProductListItemProps) => {
   return (
-<View style={styles.container}>
-      <Image source={{ uri: product.image }} style={styles.image} />
-      <Text style={styles.title}>{product.name}</Text>
-      <Text style={styles.price}>${product.price}</Text>
-    </View>
+    <Link href={`/menu/${product.id}`} asChild >
+      <Pressable style={styles.container}>
+        <Image
+          source={{ uri: product.image || defaultPizzaImage }}
+          style={styles.image}
+        />
+        <Text style={styles.title}>{product.name}</Text>
+        <Text style={styles.price}>${product.price}</Text>
+      </Pressable> 
+    </Link>
   );
 };
 
@@ -17,26 +29,28 @@ export default ProductListItem;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     padding: 10,
     borderRadius: 20,
+    flex: 1,
+    maxWidth: "50%",
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginVertical: 10,
   },
   separator: {
     marginVertical: 30,
     height: 1,
-    width: '80%',
+    width: "80%",
   },
   price: {
     color: Colors.light.tint,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   image: {
-    width: '100%',
+    width: "100%",
     aspectRatio: 1,
-  }
+  },
 });
