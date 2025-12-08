@@ -1,20 +1,28 @@
 import products from "@/assets/data/products";
 import Button from "@/src/components/Button";
 import { defaultPizzaImage } from "@/src/components/ProductListItem";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { useCart } from "@/src/providers/CartProvider";
+import { PizzaSize, Product } from "@/src/types";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import { Image, StyleSheet, Text, View, Pressable } from "react-native";
 
-const sizes = ["S", "M", "L", "XL"];
+const sizes: PizzaSize[] = ["S", "M", "L", "XL"];
 
 const ProductDetailsScreen = () => {
-  const [selectedSize, setSelectedSize] = useState<string | null>("M");
+  const [selectedSize, setSelectedSize] = useState<PizzaSize>("M");
   const { id } = useLocalSearchParams();
 
   const product = products.find((p) => p.id.toString() === id);
 
-  const addToCart = () => {
-    console.warn("Adding to cart, size: ", selectedSize);
+  const { items, addItem } = useCart();
+
+  const router = useRouter();
+
+  const addToCart = (product: Product) => {
+    if (!product) return;
+    addItem(product, selectedSize);
+    router.push("/cart");
   };
 
   if (!product) {
@@ -55,7 +63,13 @@ const ProductDetailsScreen = () => {
         ))}
       </View>
       <Text style={styles.price}>${product.price}</Text>
-      <Button onPress={addToCart} text="Add to cart" style={styles.button} />
+      <Button
+        onPress={() => {
+          addToCart(product);
+        }}
+        text="Add to cart"
+        style={styles.button}
+      />
     </View>
   );
 };
@@ -63,16 +77,18 @@ const ProductDetailsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "white",
+    padding: 10,
     flex: 1,
   },
   image: {
     width: "100%",
     aspectRatio: 1,
+    alignSelf: "center",
   },
   price: {
     fontWeight: "bold",
     fontSize: 20,
-    marginTop: 'auto'
+    marginTop: "auto",
   },
   sizes: {
     flexDirection: "row",

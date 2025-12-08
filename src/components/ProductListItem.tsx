@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, Pressable  } from "react-native";
+import { Image, StyleSheet, Text, Pressable } from "react-native";
 
 import Colors from "@/src/constants/Colors";
 import { Link } from "expo-router";
@@ -12,15 +12,17 @@ type ProductListItemProps = {
 };
 const ProductListItem = ({ product }: ProductListItemProps) => {
   return (
-    <Link href={`/menu/${product.id}`} asChild >
+    <Link href={`/menu/${product.id}`} asChild>
       <Pressable style={styles.container}>
         <Image
           source={{ uri: product.image || defaultPizzaImage }}
           style={styles.image}
         />
-        <Text style={styles.title}>{product.name}</Text>
+        <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
+          {product.name}
+        </Text>
         <Text style={styles.price}>${product.price}</Text>
-      </Pressable> 
+      </Pressable>
     </Link>
   );
 };
@@ -36,7 +38,7 @@ const styles = StyleSheet.create({
     maxWidth: "50%",
   },
   title: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "bold",
     marginVertical: 10,
   },
