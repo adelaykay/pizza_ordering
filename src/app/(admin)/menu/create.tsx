@@ -1,16 +1,19 @@
 import Button from "@/src/components/Button";
 import { defaultPizzaImage } from "@/src/components/ProductListItem";
 import Colors from "@/src/constants/Colors";
+import * as ImagePicker from "expo-image-picker";
+import { Stack, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import { Alert, Image, StyleSheet, Text, TextInput, View } from "react-native";
-import * as ImagePicker from 'expo-image-picker';
-import { Stack } from "expo-router";
 
 const CreatePoductScreeen = () => {
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
-  const [errors, setErrors] = useState('');
+  const [errors, setErrors] = useState("");
   const [image, setImage] = useState<string | null>(null);
+
+  const { id } = useLocalSearchParams();
+  const isUpdate = !!id;
 
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library.
@@ -18,15 +21,19 @@ const CreatePoductScreeen = () => {
     // and `videoExportPreset` is `'Passthrough'` (the default), ideally before launching the picker
     // so the app users aren't surprised by a system dialog after picking a video.
     // See "Invoke permissions for videos" sub section for more details.
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (!permissionResult.granted) {
-      Alert.alert('Permission required', 'Permission to access the media library is required.');
+      Alert.alert(
+        "Permission required",
+        "Permission to access the media library is required."
+      );
       return;
     }
 
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images', 'videos'],
+      mediaTypes: ["images", "videos"],
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
@@ -42,22 +49,42 @@ const CreatePoductScreeen = () => {
   const resetFields = () => {
     setName("");
     setPrice("");
-  }
+  };
 
   const validateInput = () => {
     if (!name) {
-      setErrors('Name is required');
+      setErrors("Name is required");
       return false;
     }
     if (!price) {
-      setErrors('Price is required');
+      setErrors("Price is required");
       return false;
     }
     if (isNaN(parseFloat(price))) {
-      setErrors('Price must be a number');
+      setErrors("Price must be a number");
       return false;
     }
     return true;
+  };
+
+  const onSubmit = () => {
+    if (isUpdate) {
+      onUpdate();
+    } else {
+      onCreate();
+    }
+  };
+
+  const onUpdate = () => {
+    if (!validateInput()) {
+      resetFields();
+      return;
+    }
+    console.warn("Update product");
+
+    // save in database
+
+    resetFields();
   };
 
   const onCreate = () => {
@@ -74,10 +101,17 @@ const CreatePoductScreeen = () => {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: 'Create Product'}} />
-      
-      <Image source={{uri: image || defaultPizzaImage}} style={styles.image} />
-      <Text onPress={pickImage} style={styles.textButton}>Select Image</Text>
+      <Stack.Screen
+        options={{ title: isUpdate ? "Update Product" : "Create Product" }}
+      />
+
+      <Image
+        source={{ uri: image || defaultPizzaImage }}
+        style={styles.image}
+      />
+      <Text onPress={pickImage} style={styles.textButton}>
+        Select Image
+      </Text>
       <Text style={styles.label}>Name</Text>
       <TextInput
         value={name}
@@ -94,9 +128,9 @@ const CreatePoductScreeen = () => {
         keyboardType="numeric"
       ></TextInput>
 
-      <Text style={{ color: 'red', marginBottom: 10 }}>{errors}</Text>
+      <Text style={{ color: "red", marginBottom: 10 }}>{errors}</Text>
 
-      <Button onPress={onCreate} text="Create" />
+      <Button onPress={onSubmit} text={isUpdate ? "Update" : "Create"} />
     </View>
   );
 };
@@ -120,14 +154,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   image: {
-    width: '50%',
+    width: "50%",
     aspectRatio: 1,
-    alignSelf: 'center',
+    alignSelf: "center",
     borderRadius: 100,
   },
   textButton: {
     color: Colors.light.tint,
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 10,
     marginBottom: 20,
   },
