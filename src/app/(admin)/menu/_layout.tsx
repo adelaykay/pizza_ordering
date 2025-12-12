@@ -30,7 +30,7 @@ export default function MenuStack() {
         name="[id]"
         options={{
           headerRight: () => (
-            <Link href="/" asChild>
+            <Link href="/menu/create" asChild>
               <Pressable>
                 {({ pressed }) => (
                   <FontAwesome
