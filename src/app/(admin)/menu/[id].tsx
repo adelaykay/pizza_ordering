@@ -1,7 +1,6 @@
 import products from "@/assets/data/products";
 import { defaultPizzaImage } from "@/src/components/ProductListItem";
 import Colors from "@/src/constants/Colors";
-import { useCart } from "@/src/providers/CartProvider";
 import { PizzaSize, Product } from "@/src/types";
 import { FontAwesome } from "@expo/vector-icons";
 import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
@@ -16,15 +15,7 @@ const ProductDetailsScreen = () => {
 
   const product = products.find((p) => p.id.toString() === id);
 
-  const { items, addItem } = useCart();
-
   const router = useRouter();
-
-  const addToCart = (product: Product) => {
-    if (!product) return;
-    addItem(product, selectedSize);
-    router.push("/cart");
-  };
 
   const onDelete = () => {
     // For demo purposes, we'll just alert and go back
@@ -35,6 +26,8 @@ const ProductDetailsScreen = () => {
         style: "destructive",
         onPress: () => {
           console.warn("Delete product with id:", product?.id);
+          // delete from products list / database here
+          // remember products is an imported constant for demo purposes
           router.back();
         },
       },

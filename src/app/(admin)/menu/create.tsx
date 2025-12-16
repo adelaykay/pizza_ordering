@@ -1,19 +1,24 @@
+import products from "@/assets/data/products";
 import Button from "@/src/components/Button";
 import { defaultPizzaImage } from "@/src/components/ProductListItem";
 import Colors from "@/src/constants/Colors";
 import * as ImagePicker from "expo-image-picker";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import { Alert, Image, StyleSheet, Text, TextInput, View } from "react-native";
 
 const CreatePoductScreeen = () => {
-  const [name, setName] = useState("");
-  const [price, setPrice] = useState("");
   const [errors, setErrors] = useState("");
   const [image, setImage] = useState<string | null>(null);
-
+  
+  
   const { id } = useLocalSearchParams();
+  
+  const product = products.find((p) => p.id.toString() === id);
   const isUpdate = !!id;
+  const [name, setName] = useState(isUpdate && product ? product.name : "");
+  const [price, setPrice] = useState(isUpdate && product ? product.price.toString() : "");
+  
 
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library.
@@ -35,8 +40,8 @@ const CreatePoductScreeen = () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images", "videos"],
       allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
+      aspect: [1, 1],
+      quality: 0.5,
     });
 
     console.log(result);
@@ -95,8 +100,18 @@ const CreatePoductScreeen = () => {
     console.warn("Create product");
 
     // save in database
+    const newProduct = {
+      id: products.length + 1,
+      name,
+      price: parseFloat(price),
+      image: image || defaultPizzaImage,
+    };
+    products.push(newProduct);
+    console.log("New product created:", newProduct);
 
     resetFields();
+    // navigate back to menu list
+    router.back();
   };
 
   return (
@@ -106,7 +121,7 @@ const CreatePoductScreeen = () => {
       />
 
       <Image
-        source={{ uri: image || defaultPizzaImage }}
+        source={isUpdate ? { uri: product?.image || defaultPizzaImage } : { uri: defaultPizzaImage }}
         style={styles.image}
       />
       <Text onPress={pickImage} style={styles.textButton}>
